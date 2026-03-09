@@ -1,0 +1,10 @@
+[package]
+name = "alice-video"
+version = "1.0.0"
+edition = "2021"
+authors = ["Moroya Sakamoto"]
+license = "MIT"
+description = "Video codec and processing: frame types, GOP, motion compensation, DCT, quantization, entropy coding, pixel formats, resolution scaling, bitrate control, container format"
+
+[lib]
+crate-type = ["rlib"]
