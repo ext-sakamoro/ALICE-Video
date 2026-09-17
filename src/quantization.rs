@@ -11,6 +11,12 @@ pub const QUANT_MATRIX_LUMA: [u16; 64] = [
 ];
 
 /// Quantize a DCT block with a given quality factor (1-100).
+///
+/// Step sizes follow IJG `jpeg_quality_scaling`: `⌊(Q·scale + 50) / 100⌋`
+/// clamped to ≥ 1, so quality 50 is exactly the standard luminance table and
+/// quality 100 is step 1 everywhere.  Until 2026-09-17 the floor was missing
+/// and every step carried a +0.5 offset (quality 50 used 16.5 for the DC
+/// term, oracle `tests/analytic_oracle.rs`).
 #[must_use]
 pub fn quantize(dct_block: &[f64; 64], quality: u8) -> [i16; 64] {
     let q = quality.clamp(1, 100);
@@ -22,7 +28,9 @@ pub fn quantize(dct_block: &[f64; 64], quality: u8) -> [i16; 64] {
 
     let mut result = [0_i16; 64];
     for i in 0..64 {
-        let qval = (f64::from(QUANT_MATRIX_LUMA[i]).mul_add(scale, 50.0) / 100.0).max(1.0);
+        let qval = (f64::from(QUANT_MATRIX_LUMA[i]).mul_add(scale, 50.0) / 100.0)
+            .floor()
+            .max(1.0);
         result[i] = (dct_block[i] / qval).round() as i16;
     }
     result
@@ -40,7 +48,9 @@ pub fn dequantize(quantized: &[i16; 64], quality: u8) -> [f64; 64] {
 
     let mut result = [0.0_f64; 64];
     for i in 0..64 {
-        let qval = (f64::from(QUANT_MATRIX_LUMA[i]).mul_add(scale, 50.0) / 100.0).max(1.0);
+        let qval = (f64::from(QUANT_MATRIX_LUMA[i]).mul_add(scale, 50.0) / 100.0)
+            .floor()
+            .max(1.0);
         result[i] = f64::from(quantized[i]) * qval;
     }
     result
