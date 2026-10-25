@@ -1,5 +1,5 @@
 //! Analytic oracles — closed-form checks for the codec laws in ALICE-Video
-//! (CLAUDE.md § 解析解突合テスト規律, 2026-09-17).
+//!.
 //!
 //! Expected values come from closed forms, published tables (JPEG / JFIF /
 //! IJG / BT.601) or an independent reference written in this file (separable
